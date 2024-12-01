@@ -1,0 +1,38 @@
+<article>
+  <div class="aoc__header">
+    <h2>Day {{ dayNumber() }}</h2>
+    <a routerLink="/"
+       class="aoc__back-link">
+      <i class="pi pi-home"></i>
+      Back
+    </a>
+  </div>
+  <div class="aoc__tasks">
+    <div class="aoc__task-group" [class.aoc__task-group--solved]="firstTaskSolved()">
+      <h3>
+        Task 1
+        @if(firstTaskSolved()) {
+          <i class="pi pi-star-fill"></i>
+        }
+        @else {
+          <i class="pi pi-star"></i>
+        }
+      </h3>
+      <p>Test data: {{ firstTaskTestDataSolution$ | async }}</p>
+      <p>Final data: {{ firstTaskFinalDataSolution$ | async }}</p>
+    </div>
+    <div class="aoc__task-group" [class.aoc__task-group--solved]="secondTaskSolved()">
+      <h3>
+        Task 2
+        @if(secondTaskSolved()) {
+          <i class="pi pi-star-fill"></i>
+        }
+        @else {
+          <i class="pi pi-star"></i>
+        }
+      </h3>
+      <p>Test data: {{ secondTaskTestDataSolution$ | async }}</p>
+      <p>Final data: {{ secondTaskFinalDataSolution$ | async }}</p>
+    </div>
+  </div>
+</article>

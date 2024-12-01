@@ -69,5 +69,8 @@
       "unitTestRunner": "jest"
     }
   },
-  "defaultProject": "advent-of-code-2024"
+  "defaultProject": "advent-of-code-2024",
+  "cli": {
+    "packageManager": "pnpm"
+  }
 }
