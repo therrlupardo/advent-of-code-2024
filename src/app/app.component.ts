@@ -7,7 +7,7 @@ import { RouterModule } from '@angular/router';
   selector: 'aoc-root',
   template: `
     <header>
-      <h1>Advent of Code 2023</h1>
+      <h1 class="text-[#00FF00] text-center p-2">Advent of Code 2024</h1>
     </header>
     <router-outlet></router-outlet>
   `,

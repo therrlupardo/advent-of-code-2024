@@ -14,8 +14,8 @@ export class Day3Component extends AbstractDay {
   constructor() {
     super();
     this.dayNumber.set(3);
-    this.firstTaskSolved.set(false);
-    this.secondTaskSolved.set(false);
+    this.firstTaskSolved.set(true);
+    this.secondTaskSolved.set(true);
   }
   protected firstTask(data: string): Observable<number> {
     return of(data).pipe(

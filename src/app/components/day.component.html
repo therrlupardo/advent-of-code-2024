@@ -1,34 +1,33 @@
-<article>
-  <div class="aoc__header">
+<article class="p-4 flex flex-col gap-4">
+  <div class="text-[#00FF00] flex flex-row flex-wrap justify-between">
     <h2>Day {{ dayNumber() }}</h2>
-    <a routerLink="/"
-       class="aoc__back-link">
+    <a routerLink="/">
       <i class="pi pi-home"></i>
       Back
     </a>
   </div>
-  <div class="aoc__tasks">
-    <div class="aoc__task-group" [class.aoc__task-group--solved]="firstTaskSolved()">
+  <div class="flex flex-row flex-wrap gap-2">
+    <div class="flex flex-col gap-1 border border-[#00FF00] rounded-md p-2 w-fit" [class.aoc__task-group--solved]="firstTaskSolved()">
       <h3>
         Task 1
         @if(firstTaskSolved()) {
-          <i class="pi pi-star-fill"></i>
+          <i class="pi pi-star-fill text-amber-500"></i>
         }
         @else {
-          <i class="pi pi-star"></i>
+          <i class="pi pi-star text-amber-500"></i>
         }
       </h3>
       <p>Test data: {{ firstTaskTestDataSolution$ | async }}</p>
       <p>Final data: {{ firstTaskFinalDataSolution$ | async }}</p>
     </div>
-    <div class="aoc__task-group" [class.aoc__task-group--solved]="secondTaskSolved()">
+    <div class="flex flex-col gap-1 border border-[#00FF00] rounded-md p-2 w-fit" [class.aoc__task-group--solved]="secondTaskSolved()">
       <h3>
         Task 2
         @if(secondTaskSolved()) {
-          <i class="pi pi-star-fill"></i>
+          <i class="pi pi-star-fill text-amber-500"></i>
         }
         @else {
-          <i class="pi pi-star"></i>
+          <i class="pi pi-star text-amber-500"></i>
         }
       </h3>
       <p>Test data: {{ secondTaskTestDataSolution$ | async }}</p>

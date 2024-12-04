@@ -3,11 +3,12 @@ import { AbstractDay } from './abstract-day';
 import { map, Observable, of, tap } from 'rxjs';
 import { RouterLink } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
+import { ButtonDirective } from 'primeng/button';
 
 @Component({
   selector: 'aoc-day-1',
   standalone: true,
-  imports: [RouterLink, AsyncPipe],
+  imports: [RouterLink, AsyncPipe, ButtonDirective],
   templateUrl: './day.component.html',
 })
 export class Day1Component extends AbstractDay {
@@ -34,7 +35,8 @@ export class Day1Component extends AbstractDay {
       map((data) => {
         const firstList = data.map((row) => row[0]).sort();
         const secondList = data.map((row) => row[1]).sort();
-        return data.map((_, index) => Math.abs(firstList[index] - secondList[index]))
+        return data
+          .map((_, index) => Math.abs(firstList[index] - secondList[index]))
           .reduce((acc, value) => acc + value, 0);
       })
     );
@@ -57,9 +59,13 @@ export class Day1Component extends AbstractDay {
       map((data) => {
         const firstList = data.map((row) => row[0]);
         const secondList = data.map((row) => row[1]);
-        return firstList.map(entry => secondList.filter(value => value === entry).length * entry)
+        return firstList
+          .map(
+            (entry) =>
+              secondList.filter((value) => value === entry).length * entry
+          )
           .reduce((acc, value) => acc + value, 0);
-      }),
+      })
       // tap(console.log),
       // map(() => 0)
     );
