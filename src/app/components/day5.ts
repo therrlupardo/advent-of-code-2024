@@ -3,7 +3,6 @@ import { AbstractDay } from './abstract-day';
 import { map, Observable, of, tap } from 'rxjs';
 import { RouterLink } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
-import { workspaceRules } from '@nx/eslint-plugin/src/resolve-workspace-rules';
 
 @Component({
   selector: 'aoc-day-5',
