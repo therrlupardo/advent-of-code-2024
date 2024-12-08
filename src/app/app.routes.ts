@@ -39,5 +39,10 @@ export const appRoutes: Route[] = [
     title: 'Advent of Code 2024 - Day 7',
     path: 'day/7',
     loadComponent: () => import('./components/day7').then(m => m.Day7Component)
+  },
+  {
+    title: 'Advent of Code 2024 - Day 8',
+    path: 'day/8',
+    loadComponent: () => import('./components/day8').then(m => m.Day8Component)
   }
 ];
