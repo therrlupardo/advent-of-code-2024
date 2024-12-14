@@ -16,7 +16,7 @@ export class Day12Component extends AbstractDay {
     super();
     this.dayNumber.set(12);
     this.firstTaskSolved.set(true);
-    this.secondTaskSolved.set(false);
+    this.secondTaskSolved.set(true);
   }
 
   protected firstTask(data: string): Observable<number> {
