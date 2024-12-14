@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { AbstractDay } from './abstract-day';
 import { map, Observable, of, tap } from 'rxjs';
+import { Button } from 'primeng/button';
 
 const TRAIL_START = 0;
 const TRAIL_END = 9;
@@ -12,7 +13,7 @@ const TRAIL_END = 9;
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './day.component.html',
-  imports: [RouterLink, AsyncPipe],
+  imports: [RouterLink, AsyncPipe, Button],
 })
 export class Day10Component extends AbstractDay {
   constructor() {

@@ -3,12 +3,12 @@ import { AbstractDay } from './abstract-day';
 import { map, Observable, of, tap } from 'rxjs';
 import { RouterLink } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
-import { ButtonDirective } from 'primeng/button';
+import { Button, ButtonDirective } from 'primeng/button';
 
 @Component({
   selector: 'aoc-day-1',
   standalone: true,
-  imports: [RouterLink, AsyncPipe, ButtonDirective],
+  imports: [RouterLink, AsyncPipe, Button],
   templateUrl: './day.component.html',
 })
 export class Day1Component extends AbstractDay {

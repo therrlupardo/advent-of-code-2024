@@ -33,4 +33,8 @@ export abstract class AbstractDay {
   protected abstract firstTask(data: string): Observable<number>;
 
   protected abstract secondTask(data: string): Observable<number>;
+
+  protected soSthSpecial(): void {
+    console.log('I am doing something special');
+  }
 }

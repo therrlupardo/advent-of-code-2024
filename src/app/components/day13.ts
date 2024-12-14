@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { AbstractDay } from './abstract-day';
 import { map, Observable, of, tap } from 'rxjs';
+import { Button } from 'primeng/button';
 
 const MEASUREMENT_ERROR = 10_000_000_000_000;
 
@@ -11,7 +12,7 @@ const MEASUREMENT_ERROR = 10_000_000_000_000;
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './day.component.html',
-  imports: [RouterLink, AsyncPipe],
+  imports: [RouterLink, AsyncPipe, Button],
 })
 export class Day13Component extends AbstractDay {
   constructor() {
@@ -58,8 +59,8 @@ export class Day13Component extends AbstractDay {
         .split(',')
         .map(Number);
       return {
-        buttonA: { x: buttonA[0], y: buttonA[1] } as Button,
-        buttonB: { x: buttonB[0], y: buttonB[1] } as Button,
+        buttonA: { x: buttonA[0], y: buttonA[1] } as ButtonConfig,
+        buttonB: { x: buttonB[0], y: buttonB[1] } as ButtonConfig,
         prize: { x: prize[0], y: prize[1] },
       };
     });
@@ -127,7 +128,7 @@ export class Day13Component extends AbstractDay {
   }
 }
 
-interface Button {
+interface ButtonConfig {
   x: number;
   y: number;
 }
@@ -138,7 +139,7 @@ interface Location {
 }
 
 interface MachineConfig {
-  buttonA: Button;
-  buttonB: Button;
+  buttonA: ButtonConfig;
+  buttonB: ButtonConfig;
   prize: Location;
 }

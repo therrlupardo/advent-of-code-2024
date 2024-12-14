@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { AbstractDay } from './abstract-day';
 import { map, Observable, of, tap } from 'rxjs';
+import { Button } from 'primeng/button';
 
 const EMPTY_SPACE = '.';
 
@@ -11,7 +12,7 @@ const EMPTY_SPACE = '.';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './day.component.html',
-  imports: [RouterLink, AsyncPipe],
+  imports: [RouterLink, AsyncPipe, Button],
 })
 export class Day9Component extends AbstractDay {
   constructor() {
