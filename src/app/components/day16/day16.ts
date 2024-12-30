@@ -19,9 +19,9 @@ import {
   canMoveLeft,
   canMoveRight,
   findCurrentPosition,
-  findEndPosition,
+  findEndPosition, getResultFromBoardWithMinimumPaths,
   parseInput,
-  printMap,
+  printMap
 } from './day16.utils';
 
 @Component({
@@ -45,12 +45,10 @@ export class Day16Component extends AbstractDay {
       tap((data) => console.debug(data)),
       tap((data) => printMap(data)),
       tap((data) => console.debug(findCurrentPosition(data))),
-      map((board) => buildPathTree(board, 'right', [])),
-      map((paths) =>
-        paths.filter((path) => path.foundEnd).map((path) => path.moves)
-      ),
-      tap((paths) => console.debug(paths)),
-      map((paths) => calculateResult(paths)),
+      map((board) => {
+        buildPathTree(board, 'right')
+        return getResultFromBoardWithMinimumPaths(board);
+      }),
       tap((result) => console.debug(result))
       // map((result) =>
       //   result.reduce((acc, val) => Math.min(acc, val), Number.MAX_SAFE_INTEGER)

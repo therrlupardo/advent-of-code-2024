@@ -7,10 +7,11 @@ import {
   EMPTY,
   END,
   MoveType,
-  Path,
   Point,
   VISITED,
 } from './day16.models';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export function canMoveForward(
   map: Cell[][],
@@ -240,7 +241,7 @@ export function eliminateBlindSpots(board: Cell[][]): {blindSpotsEliminated: num
       }
     }
   }
-  return { blindSpotsEliminated, board }; 
+  return { blindSpotsEliminated, board };
 }
 
 export function eliminateAllBlindSpots(board: Cell[][]): Cell[][] {
@@ -252,68 +253,194 @@ export function eliminateAllBlindSpots(board: Cell[][]): Cell[][] {
   return result.board;
 }
 
-let currentMinimum = Number.MAX_SAFE_INTEGER;
+export let boardWithMinimumPaths: number[][];
 
-export function buildPathTree(board: Cell[][], direction: Direction, moves: MoveType[]): Path[] {
-  if (currentMinimum < calculateResultForPath(moves)) {
-    return [];
+export function initBoard(board: Cell[][]): void {
+  boardWithMinimumPaths = [];
+  for(let i = 0; i<board.length; i++) {
+    const row = [];
+    for(let j = 0; j<board[i].length; j++) {
+      if (board[i][j] === BORDER) {
+        row.push(-1);
+      } else if (board[i][j] === CURRENT) {
+        row.push(0);
+      } else {
+        row.push(Number.MAX_SAFE_INTEGER);
+      }
+    }
+    boardWithMinimumPaths.push(row);
   }
+}
+
+export function getNextStep(board: Cell[][], currentPosition: Point, direction: Direction): Point {
+  switch (direction) {
+    case 'right':
+      return { x: currentPosition.x + 1, y: currentPosition.y };
+    case 'left':
+      return { x: currentPosition.x - 1, y: currentPosition.y };
+    case 'up':
+      return { x: currentPosition.x, y: currentPosition.y - 1 };
+    case 'down':
+      return { x: currentPosition.x, y: currentPosition.y + 1 };
+  }
+}
+
+const shortestPaths = new Set<string>();
+
+export function buildPathTree(board: Cell[][], direction: Direction): void {
   const currentPosition = findCurrentPosition(board);
   if (!currentPosition) {
     throw new Error('Current position not found');
   }
-  let possiblePaths: Path[] = [];
   if (canMoveForward(board, currentPosition, direction)) {
+    const nextPoint = getNextStep(board, currentPosition, direction);
     if (isNextStepEnd(board, currentPosition, direction)) {
-      possiblePaths.push({ foundEnd: true, moves: [...moves, 'change_position'] });
-      const result = calculateResultForPath([...moves, 'change_position']);
-      if (result < currentMinimum) {
-        console.debug('Found new minimum', result);
-        printMap(board);
-        currentMinimum = result;
+      if (boardWithMinimumPaths[nextPoint.y][nextPoint.x] >= boardWithMinimumPaths[currentPosition.y][currentPosition.x] + 1) {
+        boardWithMinimumPaths[nextPoint.y][nextPoint.x] = boardWithMinimumPaths[currentPosition.y][currentPosition.x] + 1;
       }
     } else {
-      const newBoard = moveForward(board, currentPosition, direction);
-      const nextPaths = buildPathTree(newBoard, direction, [...moves, 'change_position']);
-      possiblePaths = possiblePaths.concat(...nextPaths);
+      if (boardWithMinimumPaths[nextPoint.y][nextPoint.x] >= boardWithMinimumPaths[currentPosition.y][currentPosition.x] + 1) {
+        boardWithMinimumPaths[nextPoint.y][nextPoint.x] = boardWithMinimumPaths[currentPosition.y][currentPosition.x] + 1;
+        const newBoard = moveForward(board, currentPosition, direction);
+        buildPathTree(newBoard, direction);
+      }
     }
   }
   if (canMoveLeft(board, currentPosition, direction)) {
     const newDirection = getNewDirection(direction, 'left');
+    const nextPoint = getNextStep(board, currentPosition, newDirection);
     if (isNextStepEnd(board, currentPosition, newDirection)) {
-      possiblePaths.push({ foundEnd: true, moves: [...moves, 'change_direction', 'change_position'] });
-      const result = calculateResultForPath([...moves, 'change_direction', 'change_position']);
-      if (result < currentMinimum) {
-        console.debug('Found new minimum', result);
-        printMap(board);
-        currentMinimum = result;
+      if (boardWithMinimumPaths[nextPoint.y][nextPoint.x] >= boardWithMinimumPaths[currentPosition.y][currentPosition.x] + 1001) {
+        boardWithMinimumPaths[nextPoint.y][nextPoint.x] = boardWithMinimumPaths[currentPosition.y][currentPosition.x] + 1001;
       }
     } else {
-      const newBoard = moveForward(board, currentPosition, newDirection);
-      const nextPaths = buildPathTree(newBoard, newDirection, [...moves, 'change_direction', 'change_position']);
-      possiblePaths = possiblePaths.concat(...nextPaths);
+      if (boardWithMinimumPaths[nextPoint.y][nextPoint.x] >= boardWithMinimumPaths[currentPosition.y][currentPosition.x] + 1001) {
+        boardWithMinimumPaths[nextPoint.y][nextPoint.x] = boardWithMinimumPaths[currentPosition.y][currentPosition.x] + 1001;
+        const newBoard = moveForward(board, currentPosition, newDirection);
+        buildPathTree(newBoard, newDirection);
+      }
     }
   }
   if (canMoveRight(board, currentPosition, direction)) {
     const newDirection = getNewDirection(direction, 'right');
+    const nextPoint = getNextStep(board, currentPosition, newDirection);
     if (isNextStepEnd(board, currentPosition, newDirection)) {
-      possiblePaths.push({ foundEnd: true, moves: [...moves, 'change_direction', 'change_position'] });
-      const result = calculateResultForPath([...moves, 'change_direction', 'change_position']);
-      if (result < currentMinimum) {
-        console.debug('Found new minimum', result);
-        printMap(board);
-        currentMinimum = result;
+      if (boardWithMinimumPaths[nextPoint.y][nextPoint.x] >= boardWithMinimumPaths[currentPosition.y][currentPosition.x] + 1001) {
+        boardWithMinimumPaths[nextPoint.y][nextPoint.x] = boardWithMinimumPaths[currentPosition.y][currentPosition.x] + 1001;
       }
     } else {
-      const newBoard = moveForward(board, currentPosition, newDirection);
-      const nextPaths = buildPathTree(newBoard, newDirection, [...moves, 'change_direction', 'change_position']);
-      possiblePaths = possiblePaths.concat(...nextPaths);
+      if (boardWithMinimumPaths[nextPoint.y][nextPoint.x] >= boardWithMinimumPaths[currentPosition.y][currentPosition.x] + 1001) {
+        boardWithMinimumPaths[nextPoint.y][nextPoint.x] = boardWithMinimumPaths[currentPosition.y][currentPosition.x] + 1001;
+        const newBoard = moveForward(board, currentPosition, newDirection);
+        buildPathTree(newBoard, newDirection);
+      }
     }
   }
-  if (possiblePaths.length === 0) {
-    // console.debug('Found blind end');
+}
+
+export function printMapWithShortestPaths(board: Cell[][]): void {
+  const map = [];
+  for (let i = 0; i < board.length; i++) {
+    const row = [];
+    for (let j = 0; j < board[i].length; j++) {
+      if (shortestPaths.has(`${j}:${i}`)) {
+        row.push('O');
+      } else {
+        row.push(board[i][j]);
+      }
+    }
+    map.push(row);
   }
-  return possiblePaths;
+  console.debug(map.map(row => row.join('')).join('\n'));
+}
+
+export function findShortestPaths(board: Cell[][], currentPosition: Point | undefined = findEndPosition(board)): void {
+  if (!currentPosition) {
+    throw new Error('End position not found');
+  }
+  shortestPaths.add(`${currentPosition.x}:${currentPosition.y}`);
+  // point above
+  if (currentPosition.y > 0 && board[currentPosition.y - 1][currentPosition.x] === EMPTY) {
+    const currentMinusAbove = boardWithMinimumPaths[currentPosition.y][currentPosition.x] - boardWithMinimumPaths[currentPosition.y - 1][currentPosition.x];
+    if (currentMinusAbove === 1 || currentMinusAbove === 1001) {
+      findShortestPaths(board, { x: currentPosition.x, y: currentPosition.y - 1 });
+    }
+    if (currentMinusAbove === -999) {
+      const belowMinusCurrent = boardWithMinimumPaths[currentPosition.y + 1][currentPosition.x] - boardWithMinimumPaths[currentPosition.y][currentPosition.x];
+      if (belowMinusCurrent === 1001) {
+        findShortestPaths(board, { x: currentPosition.x, y: currentPosition.y - 1 });
+      }
+    }
+  }
+  // point below
+  if (currentPosition.y < board.length - 1 && board[currentPosition.y + 1][currentPosition.x] === EMPTY) {
+    const currentMinusBelow = boardWithMinimumPaths[currentPosition.y][currentPosition.x] - boardWithMinimumPaths[currentPosition.y + 1][currentPosition.x];
+    if (currentMinusBelow === 1 || currentMinusBelow === 1001) {
+      findShortestPaths(board, { x: currentPosition.x, y: currentPosition.y + 1 });
+    }
+    if (currentMinusBelow === -999) {
+      const aboveMinusCurrent = boardWithMinimumPaths[currentPosition.y - 1][currentPosition.x] - boardWithMinimumPaths[currentPosition.y][currentPosition.x];
+      if (aboveMinusCurrent === 1001) {
+        findShortestPaths(board, { x: currentPosition.x, y: currentPosition.y + 1 });
+      }
+    }
+  }
+
+  // point left
+  if (currentPosition.x > 0 && board[currentPosition.y][currentPosition.x - 1] === EMPTY) {
+    const currentMinusLeft = boardWithMinimumPaths[currentPosition.y][currentPosition.x] - boardWithMinimumPaths[currentPosition.y][currentPosition.x - 1];
+    if (currentMinusLeft === 1 || currentMinusLeft === 1001) {
+      findShortestPaths(board, { x: currentPosition.x - 1, y: currentPosition.y });
+    }
+    if (currentMinusLeft === -999) {
+      const rightMinusCurrent = boardWithMinimumPaths[currentPosition.y][currentPosition.x + 1] - boardWithMinimumPaths[currentPosition.y][currentPosition.x];
+      if (rightMinusCurrent === 1001) {
+        findShortestPaths(board, { x: currentPosition.x - 1, y: currentPosition.y });
+      }
+    }
+  }
+
+  // point right
+  if (currentPosition.x < board[0].length - 1 && board[currentPosition.y][currentPosition.x + 1] === EMPTY) {
+    const currentMinusRight = boardWithMinimumPaths[currentPosition.y][currentPosition.x] - boardWithMinimumPaths[currentPosition.y][currentPosition.x + 1];
+    if (currentMinusRight === 1 || currentMinusRight === 1001) {
+      findShortestPaths(board, { x: currentPosition.x + 1, y: currentPosition.y });
+    }
+    if (currentMinusRight === -999) {
+      const leftMinusCurrent = boardWithMinimumPaths[currentPosition.y][currentPosition.x - 1] - boardWithMinimumPaths[currentPosition.y][currentPosition.x];
+      if (leftMinusCurrent === 1001) {
+        findShortestPaths(board, { x: currentPosition.x + 1, y: currentPosition.y });
+      }
+    }
+  }
+}
+
+export function getNumberOfPointsOnShortestPaths(): number {
+  return shortestPaths.size + 1;
+}
+
+export function updateBoardWithMinimumPaths(board: number[][]): void {
+  boardWithMinimumPaths = board;
+}
+
+export function printBoardWithMinimumPaths(): void {
+  console.debug(boardWithMinimumPaths);
+}
+
+export function boardWithMinimumPathsToCSV(): void {
+  const csv = boardWithMinimumPaths.map(row => row.join(',')).join('\n');
+  const assetsPath = path.join(__dirname, 'boardWithMinimumPaths.csv');
+
+  fs.writeFileSync(assetsPath, csv);
+  console.debug('Board with minimum paths saved to', assetsPath);
+}
+
+export function getResultFromBoardWithMinimumPaths(board: Cell[][]): number {
+  const endPosition = findEndPosition(board);
+  if (!endPosition) {
+    throw new Error('End position not found');
+  }
+  return boardWithMinimumPaths[endPosition.y][endPosition.x];
 }
 
 export function getNewDirection(currentDirection: Direction, rotation: 'left' | 'right'): Direction {
