@@ -1,4 +1,4 @@
-import { BoardFieldType, Solver } from './solver';
+import { Solver } from './solver';
 
 const DAY_20_FULL_DATA = `#############################################################################################################################################
 #.......#.....#.......#.....#...#.......###...###...###...#...#...###...#...............###...###...........#.............#...#.....#.....###
@@ -159,89 +159,22 @@ const DAY_20_EXAMPLE_1_DATA = `###############
 ###############`;
 
 describe('Day 20: Race condition', () => {
-  it('should correctly parse input data', () => {
-    const solver = new Solver();
-    solver.parseInput(DAY_20_EXAMPLE_1_DATA);
-    solver.printBoard();
-    solver.printBoardDistances();
-    expect(solver.getBoard().length).toEqual(15);
-    expect(solver.getBoard()[0].length).toEqual(15);
-    const startingPoint = solver.findStartingPoint();
-    expect(startingPoint).toBeDefined();
-    if (startingPoint) {
-      expect(startingPoint.x).toEqual(1);
-      expect(startingPoint.y).toEqual(3);
-    }
-  });
-
-  it('should correctly calculate shortest paths', () => {
-    const solver = new Solver();
-    solver.parseInput(DAY_20_EXAMPLE_1_DATA);
-    const startingPoint = solver.findStartingPoint();
-    expect(startingPoint).toBeDefined();
-    if (!startingPoint) {
-      return;
-    }
-    solver.calculateShortestPaths(startingPoint, 0);
-    solver.printBoardDistances();
-    const board = solver.getBoard();
-    expect(board[startingPoint.y][startingPoint.x].shortestPathTo).toEqual(0);
-  });
-
-  it('should find all border tiles that can be removed for cheating', () => {
-    const solver = new Solver();
-    solver.parseInput(DAY_20_EXAMPLE_1_DATA);
-    const startingPoint = solver.findStartingPoint();
-    expect(startingPoint).toBeDefined();
-    if (!startingPoint) {
-      return;
-    }
-    solver.calculateShortestPaths(startingPoint, 0);
-    const removeableBorders = solver.findAllBordersThatCanBeRemoved();
-    solver.printBoard();
-    const groupedRemoving = solver.getGroupedRemoving();
-    solver.printBoardDistances();
-
-    expect(groupedRemoving['2']).toEqual(14);
-    expect(groupedRemoving['4']).toEqual(14);
-    expect(groupedRemoving['6']).toEqual(2);
-    expect(groupedRemoving['8']).toEqual(4);
-    expect(groupedRemoving['10']).toEqual(2);
-    expect(groupedRemoving['12']).toEqual(3);
-    expect(groupedRemoving['20']).toEqual(1);
-    expect(groupedRemoving['36']).toEqual(1);
-    expect(groupedRemoving['38']).toEqual(1);
-    expect(groupedRemoving['40']).toEqual(1);
-    expect(groupedRemoving['64']).toEqual(1);
-    expect(removeableBorders.length).toEqual(49);
-    expect(solver.getNumberOfCheatsThatSaveOver100Moves()).toEqual(0);
-  });
 
   describe('Task 1', () => {
-    it('should find correct answer for example data', () => {
-      const solver = new Solver();
-      solver.parseInput(DAY_20_EXAMPLE_1_DATA);
-      const startingPoint = solver.findStartingPoint();
-      expect(startingPoint).toBeDefined();
-      if (!startingPoint) {
-        return;
-      }
-      solver.calculateShortestPaths(startingPoint, 0);
-      solver.findAllBordersThatCanBeRemoved();
-      expect(solver.getNumberOfCheatsThatSaveOver100Moves()).toEqual(0);
-    });
     it('should find correct answer for final data', () => {
       const solver = new Solver();
       solver.parseInput(DAY_20_FULL_DATA);
-      const startingPoint = solver.findStartingPoint();
-      expect(startingPoint).toBeDefined();
-      if (!startingPoint) {
-        return;
-      }
-      solver.calculateShortestPaths(startingPoint, 0);
-      solver.findAllBordersThatCanBeRemoved();
-      expect(solver.getNumberOfCheatsThatSaveOver100Moves()).toEqual(0);
-
-    })
+      expect(solver.findCheatsOnPath()).toEqual(1317);
+    });
   });
+  it('should solve task 2 for example data', () => {
+    const solver = new Solver();
+    solver.parseInput(DAY_20_EXAMPLE_1_DATA);
+    expect(solver.solveTask2()).toEqual(0);
+  })
+  it('should solve task 2', () => {
+    const solver = new Solver();
+    solver.parseInput(DAY_20_FULL_DATA);
+    expect(solver.solveTask2()).toEqual(982474);
+  })
 });

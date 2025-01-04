@@ -1,5 +1,9 @@
+import { disposeEmitNodes } from '@schematics/angular/third_party/github.com/Microsoft/TypeScript/lib/typescript';
+
 export class Solver {
   private board: BoardField[][] = [];
+  private startingPosition!: BoardField;
+  private endPosition!: BoardField;
 
   // region getters
   public getBoard(): BoardField[][] {
@@ -22,70 +26,108 @@ export class Solver {
     for (let y = 0; y < board.length; y++) {
       const row = [];
       for (let x = 0; x < board.length; x++) {
-        row.push({
+        const field = {
+          y,
+          x,
           type: board[y][x] as BoardFieldType,
-          shortestPathTo: this.getDefaultShortestPathToType(board[y][x] as BoardFieldType),
-          canBeRemovedForCheating: false
-        } as BoardField);
+        } as BoardField;
+        row.push(field);
+        if (board[y][x] === BoardFieldType.START) {
+          this.startingPosition = field;
+        }
+        if (board[y][x] === BoardFieldType.END) {
+          this.endPosition = field;
+        }
       }
       finalBoard.push(row);
     }
     this.setBoard(finalBoard);
   }
 
-  public printBoard(): void {
-    console.debug(this.board.map(row => row.map(row => {
-      return row.canBeRemovedForCheating ? 'O' : row.type;
-    }).join('')).join('\n'));
-  }
+  public getPath(): string[] {
+    let currentPoint = this.startingPosition;
+    const path: string[] = [];
+    while(currentPoint) {
+      path.push(`${currentPoint.x}:${currentPoint.y}`);
+      currentPoint = this.getNeighboursWhichAreNotBorders(currentPoint).filter(n => !path.includes(`${n.x}:${n.y}`))[0];
 
-  public printBoardDistances(): void {
-
-    console.debug(this.board.map(row => row.map(row => row.shortestPathTo.toString().padStart(3).concat(' ')).join('|')).join('\n'));
-  }
-
-  private getDefaultShortestPathToType(type: BoardFieldType): number {
-    switch (type) {
-      case BoardFieldType.BORDER:
-        return -1;
-      case BoardFieldType.START:
-        return 0;
-      default:
-        return Number.MAX_SAFE_INTEGER;
     }
+    console.debug(path);
+    return path;
   }
 
-  public calculateShortestPaths(point: Position, currentDistance: number): void {
-    this.board[point.y][point.x].shortestPathTo = currentDistance;
-    const neighbours = this.getNeighboursWhichAreNotBorders(point);
-    neighbours.forEach(neighbour => {
-      if (this.board[neighbour.y][neighbour.x].shortestPathTo > currentDistance + 1) {
-        this.calculateShortestPaths(neighbour, currentDistance + 1);
+  public findCheatsOnPath(): number {
+    const path = this.getPath();
+    let cheats = 0;
+    path.forEach((point, index) => {
+      const x = point.split(':')[0];
+      const y = point.split(':')[1];
+      if (path.includes(`${+x - 2}:${y}`)) {
+        const nextIndex = path.indexOf(`${+x - 2}:${y}`);
+        if (nextIndex - index >= 102) {
+          cheats++;
+        }
       }
-    });
+      if (path.includes(`${+x + 2}:${y}`)) {
+        const nextIndex = path.indexOf(`${+x + 2}:${y}`);
+        if (nextIndex - index >= 102) {
+          cheats++;
+        }
+      }
+      if (path.includes(`${x}:${+y - 2}`)) {
+        const nextIndex = path.indexOf(`${x}:${+y - 2}`);
+        if (nextIndex - index >= 102) {
+          cheats++;
+        }
+      }
+      if (path.includes(`${x}:${+y + 2}`)) {
+        const nextIndex = path.indexOf(`${x}:${+y + 2}`);
+        if (nextIndex - index >= 102) {
+          cheats++;
+        }
+      }
+    })
+    return cheats;
   }
 
-  public findShortestPathFrom(startPoint: Position): void {
-    this.board[startPoint.y][startPoint.x].shortestPathTo = 0;
-    let changed = true;
-    while (changed) {
-      changed = false;
-      this.board.forEach(row => {
-        row.forEach(field => {
-          if (field.type === BoardFieldType.BORDER) {
-            return;
-          }
-          const neighbors = this.getNeighboursWhichAreNotBorders(field);
-          neighbors.forEach(neighbor => {
-            if (neighbor.shortestPathTo > field.shortestPathTo + 1) {
-              neighbor.shortestPathTo = field.shortestPathTo + 1;
-              changed = true;
-              // console.debug('Set value of field (x=%d, y=%d) to %d', neighbor.x, neighbor.y, neighbor.distance);
-            }
-          });
-        });
-      });
-    }
+  public solveTask2(): number {
+    const path = this.getPath();
+    let cheats = 0;
+    const resultMap: Record<number, number> = {}
+    console.debug(path.length )
+    path.forEach((p1, index1) => {
+      const x1 = +p1.split(':')[0];
+      const y1 = +p1.split(':')[1];
+      path.forEach((p2, index2) => {
+        const x2 = +p2.split(':')[0];
+        const y2 = +p2.split(':')[1];
+        const distance = Math.abs(x1-x2) + Math.abs(y1-y2);
+        if (distance <= 20 && index2 - index1 - distance >= 100) {
+          cheats++;
+        }
+        // if (distance <= 20 && index2 - index1 - distance >= 50) {
+        //   if (!resultMap[index2-index1-distance]) {
+        //     resultMap[index2-index1 - distance] = 0;
+        //   }
+        //   resultMap[index2-index1 - distance]++
+        // }
+        // if (distance <= 20 && index2-index1 === 84) {
+        //   console.debug(
+        //     this.board.map(row => row.map(field => {
+        //       if (field.x === x1 && field.y === y1) {
+        //         return '1';
+        //       }
+        //       if (field.x === x2 && field.y === y2) {
+        //         return '2';
+        //       }
+        //       return field.type;
+        //     }).join('')).join('\n')
+        //   )
+        // }
+      })
+    })
+    console.debug(resultMap);
+    return cheats;
   }
 
   private getNeighboursWhichAreNotBorders(point: Position): BoardField[] {
@@ -102,65 +144,8 @@ export class Solver {
     if (point.x < this.board.length - 1 && this.board[point.y][point.x + 1].type !== BoardFieldType.BORDER) {
       neighbours.push(this.board[point.y][point.x + 1]);
     }
+    // console.log(neighbours);
     return neighbours;
-  }
-
-  public findStartingPoint(): Position | undefined {
-    for (let y = 0; y < this.board.length; y++) {
-      for (let x = 0; x < this.board.length; x++) {
-        if (this.board[y][x].type === BoardFieldType.START) {
-          return { x, y };
-        }
-      }
-    }
-    return undefined;
-  }
-
-  public findAllBordersThatCanBeRemoved(): Position[] {
-    const borders: Position[] = [];
-    for (let y = 0; y < this.board.length; y++) {
-      for (let x = 0; x < this.board.length; x++) {
-        if (this.board[y][x].type !== BoardFieldType.BORDER) {
-          continue;
-        }
-        const neighbours = this.getNeighboursWhichAreNotBorders({ x, y });
-        if (neighbours.length >= 2) {
-          borders.push({ x, y });
-          this.board[y][x].canBeRemovedForCheating = true;
-          const neighboursAsBoardFields = neighbours.map(coords => this.board[coords.y][coords.x]);
-          const pointClosestToStart = neighboursAsBoardFields.sort((a, b) => a.shortestPathTo - b.shortestPathTo)[0];
-          const pointFurthestToStart = neighboursAsBoardFields.sort((a, b) => a.shortestPathTo - b.shortestPathTo)[neighbours.length - 1];
-          this.board[y][x].removingSaves = pointFurthestToStart.shortestPathTo - pointClosestToStart.shortestPathTo - 2;
-          // console.debug(`Removing border on (${x}, ${y}) saves ${pointFurthestToStart.shortestPathTo - pointClosestToStart.shortestPathTo - 2} moves`)
-        }
-      }
-    }
-    return borders;
-  }
-
-  public getGroupedRemoving(): Record<number, number> {
-    const groupedRemoving: Record<number, number> = {};
-    this.board.forEach(row => {
-      row.forEach(field => {
-        if (field.type !== BoardFieldType.BORDER) {
-          return;
-        }
-        if (!field.removingSaves) {
-          return;
-        }
-        if (!(field.removingSaves in groupedRemoving)) {
-          groupedRemoving[field.removingSaves] = 0;
-        }
-        groupedRemoving[field.removingSaves]++;
-      });
-    });
-    console.debug(groupedRemoving);
-    return groupedRemoving;
-  }
-
-  public getNumberOfCheatsThatSaveOver100Moves(): number {
-    const groupedRemoving = this.getGroupedRemoving();
-    return Object.keys(groupedRemoving).reduce((sum, current) => groupedRemoving[+current] >= 100 ? sum + groupedRemoving[+current] : sum, 0);
   }
 }
 
@@ -171,12 +156,9 @@ interface Position {
 
 interface BoardField extends Position {
   type: BoardFieldType;
-  shortestPathTo: number;
-  canBeRemovedForCheating: boolean;
-  removingSaves?: number;
 }
 
-export enum BoardFieldType {
+enum BoardFieldType {
   BORDER = '#',
   START = 'S',
   END = 'E',
